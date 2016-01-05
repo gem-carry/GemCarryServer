@@ -1,0 +1,22 @@
+c:\users\dhartnett\documents\visual studio 2013\Projects\GemCarryServer\GemCarryServer\bin\Debug\GemCarryServer.exe.config
+c:\users\dhartnett\documents\visual studio 2013\Projects\GemCarryServer\GemCarryServer\bin\Debug\GemCarryServer.exe
+c:\users\dhartnett\documents\visual studio 2013\Projects\GemCarryServer\GemCarryServer\bin\Debug\GemCarryServer.pdb
+c:\users\dhartnett\documents\visual studio 2013\Projects\GemCarryServer\GemCarryServer\obj\Debug\GemCarryServer.csprojResolveAssemblyReference.cache
+c:\users\dhartnett\documents\visual studio 2013\Projects\GemCarryServer\GemCarryServer\obj\Debug\GemCarryServer.exe
+c:\users\dhartnett\documents\visual studio 2013\Projects\GemCarryServer\GemCarryServer\obj\Debug\GemCarryServer.pdb
+C:\Users\dhartnett\Documents\Visual Studio 2013\Projects\GemCarryServer\GemCarryServer\bin\Debug\GCMessaging.dll
+C:\Users\dhartnett\Documents\Visual Studio 2013\Projects\GemCarryServer\GemCarryServer\bin\Debug\GCMessaging.pdb
+C:\Users\bwt\Source\Repos\GemCarryServer\GemCarryServer\bin\Debug\GemCarryServer.exe.config
+C:\Users\bwt\Source\Repos\GemCarryServer\GemCarryServer\obj\Debug\GemCarryServer.exe
+C:\Users\bwt\Source\Repos\GemCarryServer\GemCarryServer\obj\Debug\GemCarryServer.pdb
+C:\Users\bwt\Source\Repos\GemCarryServer\GemCarryServer\obj\Debug\GemCarryServer.csprojResolveAssemblyReference.cache
+C:\Users\bwt\Source\Repos\GemCarryServer\GemCarryServer\bin\Debug\GemCarryServer.exe
+C:\Users\bwt\Source\Repos\GemCarryServer\GemCarryServer\bin\Debug\GemCarryServer.pdb
+C:\Users\bwt\Source\Repos\GemCarryServer\GemCarryServer\bin\Debug\GCMessaging.dll
+C:\Users\bwt\Source\Repos\GemCarryServer\GemCarryServer\bin\Debug\GCMessaging.pdb
+C:\Users\bwt\Source\Repos\GemCarryServer\GemCarryServer\bin\Debug\AWSSDK.Core.dll
+C:\Users\bwt\Source\Repos\GemCarryServer\GemCarryServer\bin\Debug\AWSSDK.DynamoDBv2.dll
+C:\Users\bwt\Source\Repos\GemCarryServer\GemCarryServer\bin\Debug\AWSSDK.Core.pdb
+C:\Users\bwt\Source\Repos\GemCarryServer\GemCarryServer\bin\Debug\AWSSDK.Core.xml
+C:\Users\bwt\Source\Repos\GemCarryServer\GemCarryServer\bin\Debug\AWSSDK.DynamoDBv2.pdb
+C:\Users\bwt\Source\Repos\GemCarryServer\GemCarryServer\bin\Debug\AWSSDK.DynamoDBv2.xml
