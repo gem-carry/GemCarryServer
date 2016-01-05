@@ -14,9 +14,20 @@ namespace GemCarryServer
 
         static void Main(string[] args)
         {
-            mServerHost = new ServerHost();
-            mServerHost.StartServer();
-            //Trace.WriteLine("Brian is a butthole");
+            // DO NOT PUT INVALID EMAIL ADDRESSES IN FOR CREATE USER, THIS COULD GET US BANNED FROM SES
+            //   mServerHost = new ServerHost();
+            //   mServerHost.StartServer();
+
+            GemDatabase gdb = new GemDatabase();
+            string r;
+            // DO NOT PUT INVALID EMAIL ADDRESSES IN FOR CREATE USER, THIS COULD GET US BANNED FROM SES
+            // DO NOT PUT INVALID EMAIL ADDRESSES IN FOR CREATE USER, THIS COULD GET US BANNED FROM SES
+            // DO NOT PUT INVALID EMAIL ADDRESSES IN FOR CREATE USER, THIS COULD GET US BANNED FROM SES
+            gdb.CreateUser("brianwthomas@gmail.com", "test", out r);
+            // DO NOT PUT INVALID EMAIL ADDRESSES IN FOR CREATE USER, THIS COULD GET US BANNED FROM SES
+            // DO NOT PUT INVALID EMAIL ADDRESSES IN FOR CREATE USER, THIS COULD GET US BANNED FROM SES
+            // DO NOT PUT INVALID EMAIL ADDRESSES IN FOR CREATE USER, THIS COULD GET US BANNED FROM SES
+            Console.Read();
         }
     }
 }

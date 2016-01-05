@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.Model;
+using Amazon.SimpleEmail;
+using Amazon.SimpleEmail.Model;
 
 
 namespace GemCarryServer
@@ -14,7 +16,7 @@ namespace GemCarryServer
         private PasswordHash pwh = new PasswordHash();
         private AmazonDynamoDBClient client;
         private GameLogger logger = GameLogger.GetInstance();
-        private const string LOGIN_TABLE_NAME = "GemCarryLogin";
+        private const string LOGIN_TABLE_NAME = "GCLogin";
 
         // constants for Login DB Indexes
         private const int EMAIL_INDEX = 0;
@@ -125,24 +127,27 @@ namespace GemCarryServer
                     const int TEMP_SALT_INDEX = 2;
                     const int TEMP_PBKDF2_INDEX = 3;
 
-                    string g = Guid.NewGuid().ToString();                                        
+                    string mAccountGuid = Guid.NewGuid().ToString();
+                    string mEmailVerificationGuid = Guid.NewGuid().ToString();
                     char[] delimiter = { ':' };
                     string[] split = pwh.CreateHash(p).Split(delimiter);
  
                     PutItemRequest request = new PutItemRequest();
                     request.TableName = LOGIN_TABLE_NAME;
                     request.Item.Add("email", new AttributeValue { S = e });
-                    request.Item.Add("account_id", new AttributeValue { S = g });
+                    request.Item.Add("account_id", new AttributeValue { S = mAccountGuid });
                     request.Item.Add("encryption", new AttributeValue { S = split[TEMP_ENCRYPTION_INDEX] });
                     request.Item.Add("iterations", new AttributeValue { S = split[TEMP_ITERATION_INDEX] });
                     request.Item.Add("salt_hash", new AttributeValue { S = split[TEMP_SALT_INDEX] });
                     request.Item.Add("password_hash", new AttributeValue { S = split[TEMP_PBKDF2_INDEX] });
-
+                    request.Item.Add("email_verification_guid", new AttributeValue { S = mEmailVerificationGuid });
+                    request.Item.Add("account_validated", new AttributeValue { BOOL = false });
                     this.client.PutItem(request);
                     #if DEBUG
                         logger.WriteLog(GameLogger.LogLevel.Debug, string.Format("User {0} added to GemCarryLogin table.", e));
                     #endif // DEBUG
-                    r = String.Format("{0}:{1}",e,g);
+                    r = String.Format("{0}:{1}",e,mAccountGuid);    // out emailaddress:accountid
+                    SendVerificationEmail(e,mEmailVerificationGuid);
                     return GemCarryEnum.DbCreateUserEnum.Success;
                 }
                 catch (AmazonDynamoDBException ex)
@@ -152,6 +157,41 @@ namespace GemCarryServer
                     return GemCarryEnum.DbCreateUserEnum.ConnectionError;
                 }
             }            
+        }
+
+        public void SendVerificationEmail(string emailaddress, string validation_guid)
+        {
+            const string VERIFICATION_DOMAIN = "https://nzixo03fx1.execute-api.us-west-2.amazonaws.com/prod/emailvalidation?verificationstring="; //TODO: Move this to our domain name prior to launch
+            const string FROM = "gemcarry@brianwthomas.com"; //TODO: Change to real domain name
+            const string SUBJECT = "Please verify your email address";
+            string TO = emailaddress;
+            string mBase64EncodedGuid = Convert.ToBase64String(Encoding.UTF8.GetBytes(emailaddress + ":" + validation_guid));
+             
+            Destination destination = new Destination();
+            destination.ToAddresses = (new List<string> { TO });
+
+            Content subject = new Content(SUBJECT);
+            Content textBody = new Content(string.Format("Please click the following link to verifiy your email address {0}{1}", VERIFICATION_DOMAIN,mBase64EncodedGuid));
+            Body body = new Body(textBody);
+            
+            // Create a message with the specified subject/body
+            Message message = new Message(subject, body);
+
+            // assemble the avengers..err email
+            SendEmailRequest request = new SendEmailRequest(FROM, destination, message);
+            
+            AmazonSimpleEmailServiceClient client = new AmazonSimpleEmailServiceClient();
+            try
+            {                
+#if DEBUG
+    logger.WriteLog(GameLogger.LogLevel.Debug, string.Format("Generating Validation Email for {0}.", emailaddress));
+#endif // DEBUG
+                client.SendEmail(request);
+            }
+            catch (Exception ex)
+            {
+                logger.WriteLog(GameLogger.LogLevel.Error, ex.Message.ToString());                
+            }
         }
 
         /// <summary>

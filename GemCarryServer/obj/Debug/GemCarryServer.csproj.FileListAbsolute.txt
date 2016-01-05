@@ -20,3 +20,6 @@ C:\Users\bwt\Source\Repos\GemCarryServer\GemCarryServer\bin\Debug\AWSSDK.Core.pd
 C:\Users\bwt\Source\Repos\GemCarryServer\GemCarryServer\bin\Debug\AWSSDK.Core.xml
 C:\Users\bwt\Source\Repos\GemCarryServer\GemCarryServer\bin\Debug\AWSSDK.DynamoDBv2.pdb
 C:\Users\bwt\Source\Repos\GemCarryServer\GemCarryServer\bin\Debug\AWSSDK.DynamoDBv2.xml
+C:\Users\bwt\Source\Repos\GemCarryServer\GemCarryServer\bin\Debug\AWSSDK.SimpleEmail.dll
+C:\Users\bwt\Source\Repos\GemCarryServer\GemCarryServer\bin\Debug\AWSSDK.SimpleEmail.pdb
+C:\Users\bwt\Source\Repos\GemCarryServer\GemCarryServer\bin\Debug\AWSSDK.SimpleEmail.xml
