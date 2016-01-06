@@ -147,7 +147,7 @@ namespace GemCarryServer
                         logger.WriteLog(GameLogger.LogLevel.Debug, string.Format("User {0} added to GemCarryLogin table.", e));
                     #endif // DEBUG
                     r = String.Format("{0}:{1}",e,mAccountGuid);    // out emailaddress:accountid
-                    SendVerificationEmail(e,mEmailVerificationGuid);
+                    MailSender.SendVerificationEmail(e,mEmailVerificationGuid);
                     return GemCarryEnum.DbCreateUserEnum.Success;
                 }
                 catch (AmazonDynamoDBException ex)
@@ -159,40 +159,7 @@ namespace GemCarryServer
             }            
         }
 
-        public void SendVerificationEmail(string emailaddress, string validation_guid)
-        {
-            const string VERIFICATION_DOMAIN = "https://nzixo03fx1.execute-api.us-west-2.amazonaws.com/prod/emailvalidation?verificationstring="; //TODO: Move this to our domain name prior to launch
-            const string FROM = "gemcarry@brianwthomas.com"; //TODO: Change to real domain name
-            const string SUBJECT = "Please verify your email address";
-            string TO = emailaddress;
-            string mBase64EncodedGuid = Convert.ToBase64String(Encoding.UTF8.GetBytes(emailaddress + ":" + validation_guid));
-             
-            Destination destination = new Destination();
-            destination.ToAddresses = (new List<string> { TO });
 
-            Content subject = new Content(SUBJECT);
-            Content textBody = new Content(string.Format("Please click the following link to verifiy your email address {0}{1}", VERIFICATION_DOMAIN,mBase64EncodedGuid));
-            Body body = new Body(textBody);
-            
-            // Create a message with the specified subject/body
-            Message message = new Message(subject, body);
-
-            // assemble the avengers..err email
-            SendEmailRequest request = new SendEmailRequest(FROM, destination, message);
-            
-            AmazonSimpleEmailServiceClient client = new AmazonSimpleEmailServiceClient();
-            try
-            {                
-#if DEBUG
-    logger.WriteLog(GameLogger.LogLevel.Debug, string.Format("Generating Validation Email for {0}.", emailaddress));
-#endif // DEBUG
-                client.SendEmail(request);
-            }
-            catch (Exception ex)
-            {
-                logger.WriteLog(GameLogger.LogLevel.Error, ex.Message.ToString());                
-            }
-        }
 
         /// <summary>
         /// Validates User Credentilas in Table

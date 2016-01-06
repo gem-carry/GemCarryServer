@@ -23,3 +23,5 @@ C:\Users\bwt\Source\Repos\GemCarryServer\GemCarryServer\bin\Debug\AWSSDK.DynamoD
 C:\Users\bwt\Source\Repos\GemCarryServer\GemCarryServer\bin\Debug\AWSSDK.SimpleEmail.dll
 C:\Users\bwt\Source\Repos\GemCarryServer\GemCarryServer\bin\Debug\AWSSDK.SimpleEmail.pdb
 C:\Users\bwt\Source\Repos\GemCarryServer\GemCarryServer\bin\Debug\AWSSDK.SimpleEmail.xml
+C:\Users\bwt\Source\Repos\GemCarryServer\GemCarryServer\bin\Debug\MimeKitLite.dll
+C:\Users\bwt\Source\Repos\GemCarryServer\GemCarryServer\bin\Debug\MimeKitLite.xml
