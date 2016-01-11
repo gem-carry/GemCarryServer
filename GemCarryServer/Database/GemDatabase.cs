@@ -18,15 +18,6 @@ namespace GemCarryServer
         private GameLogger logger = GameLogger.GetInstance();
         private const string LOGIN_TABLE_NAME = "GCLogin";
 
-        // constants for Login DB Indexes
-        private const int EMAIL_INDEX = 0;
-        private const int ENCRYPTION_INDEX = 1;
-        private const int ITERATION_INDEX = 2;
-        private const int PASSWORD_HASH_INDEX = 3;
-        private const int SALT_HASH_INDEX = 4;
-        private const int ACCOUNTID_INDEX = 5;
-        private const int LOGIN_TOTAL_COLUMNS = 6;
-
         private const string ITERATION_COUNT = "1000";
         private const string ENCRYPTION_TYPE = "sha1";
 
@@ -39,9 +30,9 @@ namespace GemCarryServer
             try
             {
                 this.client = new AmazonDynamoDBClient();
-                #if DEBUG
+#if DEBUG
                     logger.WriteLog(GameLogger.LogLevel.Debug, "Opening connection to DynamoDB Client");
-                #endif // DEBUG                
+#endif // DEBUG                
             }
             catch (AmazonDynamoDBException ex)
             {
@@ -61,35 +52,36 @@ namespace GemCarryServer
             // Setting return value to false with no results.           
             GetItemRequest request = new GetItemRequest();
             request.TableName = LOGIN_TABLE_NAME;
-            AttributeValue[] av = new AttributeValue[LOGIN_TOTAL_COLUMNS];
+            AttributeValue[] av = new AttributeValue[(int)DBEnum.LoginColumn.NUM_COLUMNS];
             request.Key = new Dictionary<string, AttributeValue>() { { "email", new AttributeValue { S = u } } };
+
             try
             {
                 var response = this.client.GetItem(request);
                 if (0 == response.Item.Count)
                 {
-                    #if DEBUG
+#if DEBUG
                         logger.WriteLog(GameLogger.LogLevel.Debug, string.Format("User {0} does not exist in table", u));
-                    #endif // DEBUG
+#endif // DEBUG
                     r = null;
                     return false;
                 }                
-                #if DEBUG
+#if DEBUG
                     logger.WriteLog(GameLogger.LogLevel.Debug, string.Format("User {0} exists in table", u));
-                #endif // DEBUG
-                response.Item.TryGetValue("email", out av[EMAIL_INDEX]);
-                response.Item.TryGetValue("encryption", out av[ENCRYPTION_INDEX]);
-                response.Item.TryGetValue("iterations", out av[ITERATION_INDEX]);
-                response.Item.TryGetValue("password_hash", out av[PASSWORD_HASH_INDEX]);
-                response.Item.TryGetValue("salt_hash", out av[SALT_HASH_INDEX]);
-                response.Item.TryGetValue("account_id", out av[ACCOUNTID_INDEX]);
+#endif // DEBUG
+                response.Item.TryGetValue("email", out av[(int)DBEnum.LoginColumn.EMAIL]);
+                response.Item.TryGetValue("encryption", out av[(int)DBEnum.LoginColumn.ENCRYPTION]);
+                response.Item.TryGetValue("iterations", out av[(int)DBEnum.LoginColumn.ITERATION]);
+                response.Item.TryGetValue("password_hash", out av[(int)DBEnum.LoginColumn.PASSWORD_HASH]);
+                response.Item.TryGetValue("salt_hash", out av[(int)DBEnum.LoginColumn.SALT_HASH]);
+                response.Item.TryGetValue("account_id", out av[(int)DBEnum.LoginColumn.ACCOUNTID]);
                 r = string.Format("{0}:{1}:{2}:{3}:{4}:{5}",
-                    av[EMAIL_INDEX].S, 
-                    av[ACCOUNTID_INDEX].S, 
-                    av[ENCRYPTION_INDEX].S, 
-                    av[ITERATION_INDEX].S,
-                    av[SALT_HASH_INDEX].S,
-                    av[PASSWORD_HASH_INDEX].S);                
+                    av[(int)DBEnum.LoginColumn.EMAIL].S, 
+                    av[(int)DBEnum.LoginColumn.ENCRYPTION].S, 
+                    av[(int)DBEnum.LoginColumn.ITERATION].S, 
+                    av[(int)DBEnum.LoginColumn.PASSWORD_HASH].S,
+                    av[(int)DBEnum.LoginColumn.SALT_HASH].S,
+                    av[(int)DBEnum.LoginColumn.ACCOUNTID].S);                
                 return true;
             }
             catch (AmazonDynamoDBException ex)
@@ -108,15 +100,15 @@ namespace GemCarryServer
         /// <param name="p">The user's password.</param>   
         /// <param name="r">Output response when user created.</param>   
         /// <returns>DBCreateUserEnum Also returns output string r from input parameters</returns>
-        public GemCarryEnum.DbCreateUserEnum CreateUser(string e, string p, out string r)
+        public DBEnum.CreateUserError CreateUser(string e, string p, out string r)
         {
             if (DoesUserExist(e, out r))
             {
-                #if DEBUG
+#if DEBUG
                     logger.WriteLog(GameLogger.LogLevel.Debug, string.Format("Could not create User {0}; already exists in table", e));
-                #endif // DEBUG
+#endif // DEBUG
                 r = null;
-                return GemCarryEnum.DbCreateUserEnum.Exists;
+                return DBEnum.CreateUserError.Exists;
             }
             else
             {
@@ -148,13 +140,13 @@ namespace GemCarryServer
                     #endif // DEBUG
                     r = String.Format("{0}:{1}",e,mAccountGuid);    // out emailaddress:accountid
                     MailSender.SendVerificationEmail(e,mEmailVerificationGuid);
-                    return GemCarryEnum.DbCreateUserEnum.Success;
+                    return DBEnum.CreateUserError.Success;
                 }
                 catch (AmazonDynamoDBException ex)
                 {
                     r = null;
                     logger.WriteLog(GameLogger.LogLevel.Error, ex.Message.ToString());
-                    return GemCarryEnum.DbCreateUserEnum.ConnectionError;
+                    return DBEnum.CreateUserError.ConnectionError;
                 }
             }            
         }
