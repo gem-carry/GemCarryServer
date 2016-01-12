@@ -65,7 +65,7 @@
     <Compile Include="GameLogger.cs" />
     <Compile Include="GamePlayer.cs" />
     <Compile Include="GameSession.cs" />
-    <Compile Include="Database\GemCarryEnum.cs" />
+    <Compile Include="Database\DBEnum.cs" />
     <Compile Include="Database\GemDatabase.cs" />
     <Compile Include="LoginManager.cs" />
     <Compile Include="Mail\MailSender.cs" />
