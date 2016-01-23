@@ -139,7 +139,7 @@ namespace GemCarryServer
                         logger.WriteLog(GameLogger.LogLevel.Debug, string.Format("User {0} added to GemCarryLogin table.", e));
                     #endif // DEBUG
                     r = String.Format("{0}:{1}",e,mAccountGuid);    // out emailaddress:accountid
-                    MailSender.SendVerificationEmail(e,mEmailVerificationGuid);
+             //       MailSender.SendVerificationEmail(e,mEmailVerificationGuid);
                     return DBEnum.CreateUserError.Success;
                 }
                 catch (AmazonDynamoDBException ex)

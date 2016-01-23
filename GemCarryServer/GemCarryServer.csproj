@@ -62,18 +62,20 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AsyncSocketListener.cs" />
+    <Compile Include="Database\DBManager.cs" />
+    <Compile Include="Database\LoginManager.cs" />
     <Compile Include="GameLogger.cs" />
     <Compile Include="GamePlayer.cs" />
     <Compile Include="GameSession.cs" />
     <Compile Include="Database\DBEnum.cs" />
     <Compile Include="Database\GemDatabase.cs" />
-    <Compile Include="LoginManager.cs" />
     <Compile Include="Mail\MailSender.cs" />
     <Compile Include="MessageHandler.cs" />
     <Compile Include="Database\PasswordHash.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServerHost.cs" />
+    <Compile Include="User\GCUser.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

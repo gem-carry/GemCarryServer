@@ -8,6 +8,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Runtime.Serialization.Formatters.Binary;
 using GCMessaging;
+using GemCarryServer.Database;
 
 namespace GemCarryServer
 {
@@ -32,11 +33,11 @@ namespace GemCarryServer
 
             switch(msg.mType)
             {
-                case MessageType.LOGIN:
+                /*case MessageType.LOGIN:
                     {
                         LoginMessage loginMsg = (LoginMessage) msg;
 
-                        int status = LoginManager.AttemptLoginForClient(loginMsg/*, out UserDetails user*/);
+                        int status = LoginManager.AttemptLoginForClient(loginMsg/*, out UserDetails user);
 
                         if(0 == status)
                         {
@@ -52,6 +53,7 @@ namespace GemCarryServer
 
                         break;
                     }
+        */
                 case MessageType.HEARTBEAT:
                 default:
                     {

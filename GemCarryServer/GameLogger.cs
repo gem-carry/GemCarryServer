@@ -30,7 +30,7 @@ namespace GemCarryServer
         // ENUM for LogTypes
         public enum LogLevel
         {
-            Warning,
+            Warning = 0,
             Error,
             Debug
         }
