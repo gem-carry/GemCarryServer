@@ -155,14 +155,14 @@ namespace GemCarryServer.Database
         /// <param name="email">User's email address</param>
         /// <param name="password">Users Password</param>
         /// <returns>0 if successful, otherwise > 0</returns>
-        public int CreateUser(string email, string password)
+        public int CreateUser(GCUser.LoginInfo loginInfo, string password)
         {
             int response = (int)DBEnum.DBResponseCodes.DEFAULT_VALUE;
             PutItemRequest request = new PutItemRequest();
             GetItemResponse giResponse = new GetItemResponse(); // created just to dump response but won't be used ever
 
             // If user does NOT exist...Create User
-            if ((int)DBEnum.DBResponseCodes.DOES_NOT_EXIST == dbManager.GetItem(primaryKey, email, TABLE, out giResponse))
+            if ((int)DBEnum.DBResponseCodes.DOES_NOT_EXIST == dbManager.GetItem(primaryKey, loginInfo.Email, TABLE, out giResponse))
             {
                 try  // Try to create User
                 {
@@ -174,7 +174,7 @@ namespace GemCarryServer.Database
                     // set table to "GCLogin"
                     request.TableName = TABLE;
                     // set items to add
-                    request.Item.Add(primaryKey, new AttributeValue { S = email });
+                    request.Item.Add(primaryKey, new AttributeValue { S = loginInfo.Email });
                     request.Item.Add(ACCOUNT_ID, new AttributeValue { S = accountGuid });
                     request.Item.Add(ENCRYPTION, new AttributeValue { S = split[(int)DBEnum.GCLoginIndex.ENCRYPTION_INDEX] });
                     request.Item.Add(ITERATIONS, new AttributeValue { S = split[(int)DBEnum.GCLoginIndex.ITERATION_INDEX] });
@@ -186,18 +186,18 @@ namespace GemCarryServer.Database
                     dbManager.PutItem(request);
 
                     response = (int)DBEnum.DBResponseCodes.SUCCESS;
-                    logger.WriteLog(GameLogger.LogLevel.Debug, string.Format("Created user {0} in Table {1}", email, TABLE));
+                    logger.WriteLog(GameLogger.LogLevel.Debug, string.Format("Created user {0} in Table {1}", loginInfo.Email, TABLE));
                 }
                 catch  // If creation fails
                 {
                     response = (int)DBEnum.DBResponseCodes.DYNAMODB_EXCEPTION;
-                    logger.WriteLog(GameLogger.LogLevel.Error, string.Format("Failed to create user {0} due to DynamoDB Exception.", email));
+                    logger.WriteLog(GameLogger.LogLevel.Error, string.Format("Failed to create user {0} due to DynamoDB Exception.", loginInfo.Email));
                 }
             }
             // if user DOES exist or error
             else
             {
-                logger.WriteLog(GameLogger.LogLevel.Debug, string.Format("Failed to create user {0}, it already exists or another error happened.", email));
+                logger.WriteLog(GameLogger.LogLevel.Debug, string.Format("Failed to create user {0}, it already exists or another error happened.", loginInfo.Email));
                 response = (int)DBEnum.DBResponseCodes.USER_EXIST;
             }
         
@@ -308,6 +308,29 @@ namespace GemCarryServer.Database
             return response;
         }
 
+        /// <summary>
+        /// Deletes user account.
+        /// </summary>
+        /// <param name="loginInfo"></param>
+        /// <param name="password"></param>
+        /// <returns></returns>
+        public int DeleteAccount(GCUser.LoginInfo loginInfo, string password)
+        {
+            int response = (int)DBEnum.DBResponseCodes.DEFAULT_VALUE;
+
+            if ((int)DBEnum.DBResponseCodes.SUCCESS == ValidateCredentials(loginInfo, password))
+            {
+                dbManager.DeleteItem(primaryKey, loginInfo.Email, TABLE);                
+                response = (int)DBEnum.DBResponseCodes.SUCCESS;
+                logger.WriteLog(GameLogger.LogLevel.Debug, string.Format("User: {0} has been deleted from GCLogin Table.", loginInfo.Email));
+            }
+            else
+            {
+                response = (int)DBEnum.DBResponseCodes.INVALID_USERNAME_PASSWORD;
+            }
+
+            return response;
+        }
     }
 
 }

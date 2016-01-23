@@ -68,7 +68,6 @@
     <Compile Include="GamePlayer.cs" />
     <Compile Include="GameSession.cs" />
     <Compile Include="Database\DBEnum.cs" />
-    <Compile Include="Database\GemDatabase.cs" />
     <Compile Include="Mail\MailSender.cs" />
     <Compile Include="MessageHandler.cs" />
     <Compile Include="Database\PasswordHash.cs" />

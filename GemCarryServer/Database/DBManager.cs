@@ -125,8 +125,7 @@ namespace GemCarryServer.Database
         public int UpdateItem(UpdateItemRequest request)
         {
             int response = (int)DBEnum.DBResponseCodes.DEFAULT_VALUE;
-
-            // TODO: Create update Item request
+            
             try
             {
                 this.client.UpdateItem(request);
@@ -137,6 +136,26 @@ namespace GemCarryServer.Database
                 response = (int)DBEnum.DBResponseCodes.DYNAMODB_EXCEPTION;
             }
 
+            return response;
+        }
+
+        public int DeleteItem(string primaryKeyName, string primaryKeyValue, string table)
+        {
+            int response = (int)DBEnum.DBResponseCodes.DEFAULT_VALUE;
+
+            DeleteItemRequest request = new DeleteItemRequest(); // generate new deleterequest
+            request.TableName = table;  // set to table name
+            request.Key = new Dictionary<string, AttributeValue>() { { primaryKeyName , new AttributeValue { S = primaryKeyValue } } };
+            try
+            {
+                this.client.DeleteItem(request);
+                response = (int)DBEnum.DBResponseCodes.SUCCESS;
+            }
+            catch
+            {
+                response = (int)DBEnum.DBResponseCodes.DYNAMODB_EXCEPTION;
+            }
+            
             return response;
         }
     }
