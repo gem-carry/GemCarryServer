@@ -13,8 +13,8 @@ namespace GemCarryServer
         static void Main(string[] args)
         {
             // DO NOT PUT INVALID EMAIL ADDRESSES IN FOR CREATE USER, THIS COULD GET US BANNED FROM SES
-            //   mServerHost = new ServerHost();
-            //   mServerHost.StartServer();
+               mServerHost = new ServerHost();
+               mServerHost.StartServer();
 
             //         GemDatabase gdb = new GemDatabase();
             //        string r;
@@ -26,13 +26,13 @@ namespace GemCarryServer
             // DO NOT PUT INVALID EMAIL ADDRESSES IN FOR CREATE USER, THIS COULD GET US BANNED FROM SES
             // DO NOT PUT INVALID EMAIL ADDRESSES IN FOR CREATE USER, THIS COULD GET US BANNED FROM SES
 
-            LoginManager lm = LoginManager.GetInstance();
-            GCUser.LoginInfo myUser = new GCUser.LoginInfo();
-            myUser.Email = "bwt@domain.com";
-       //     lm.CreateUser(myUser, "password");
-           // lm.ValidateCredentials(myUser, "password1");
-            lm.DeleteAccount(myUser, "password");
-            Console.Read();
+            //LoginManager lm = LoginManager.GetInstance();
+            //GCUser.LoginInfo myUser = new GCUser.LoginInfo();
+            //myUser.Email = "bwt@domain.com";
+            //lm.CreateUser(myUser, "password");
+            //lm.ValidateCredentials(myUser, "password1");
+            //lm.DeleteAccount(myUser, "password");
+            //Console.Read();
         }
     }
 }

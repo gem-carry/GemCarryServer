@@ -33,18 +33,22 @@ namespace GemCarryServer
 
             switch(msg.mType)
             {
-                /*case MessageType.LOGIN:
+                case MessageType.LOGIN:
                     {
                         LoginMessage loginMsg = (LoginMessage) msg;
 
-                        int status = LoginManager.AttemptLoginForClient(loginMsg/*, out UserDetails user);
+                        int status = 0;// LoginManager.GetInstance().ValidateCredentials(new User.GCUser.LoginInfo(loginMsg.mUsername), loginMsg.mPassword);
 
                         if(0 == status)
                         {
                             // Success!
-                            //OutMessageUserDetails userMsg = new OutMessageUserDetails(
-                            //client.DispatchMessage();
-                            Console.WriteLine("Login successful");
+                            ChatMessage omsg = new ChatMessage();
+                            omsg.mSender = "Server";
+                            omsg.mMessage = "You have logged in.";
+
+                            client.DispatchMessage(omsg);
+
+                            Console.WriteLine("User {0} logged in", loginMsg.mUsername);
                         }
                         else
                         {
@@ -53,7 +57,7 @@ namespace GemCarryServer
 
                         break;
                     }
-        */
+        
                 case MessageType.HEARTBEAT:
                 default:
                     {

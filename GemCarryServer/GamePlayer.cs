@@ -8,6 +8,7 @@ using System.Net.Sockets;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
+using System.IO.Compression;
 using GCMessaging;
 
 namespace GemCarryServer
@@ -98,20 +99,34 @@ namespace GemCarryServer
                             state.dataCount = bytesRead;
                         }
 
+                        // All the data has been read from the 
+                        // client. Display it on the console.
+                        Console.WriteLine("Read {0} bytes from socket {1}.",
+                            state.data.Length, mSocketId);
+
                         // Check for end-of-file tag. If it is not there, read 
                         // more data.
-                        if(MessageHelper.FindEOM(state.data) > -1)
+                        int msgEnd = MessageHelper.FindEOM(state.data);
+                        if (msgEnd > -1)
                         {
-                            // All the data has been read from the 
-                            // client. Display it on the console.
-                            Console.WriteLine("Read {0} bytes from socket {1}. \n Data : {2}",
-                                state.data.Length, mSocketId, state.data.ToString());
+                            // At least one full message read
+                            while (msgEnd > -1)
+                            {
+                                byte[] dataMsg;
+                                byte[] newMsg;
+                                int newMsgLength;
 
-                            byte[] dataMsg;
-                            MessageHelper.RemoveEOM(state.data, out dataMsg);
+                                // Sorts out the message data into at least one full message, saves any spare bytes for next message
+                                MessageHelper.ClearMessageFromStream(msgEnd, state.data, out dataMsg, out newMsg, out newMsgLength);
 
-                            // Do something with client message
-                            MessageHandler.HandleMessage(dataMsg, mGameSession, this);
+                                // Do something with client message
+                                MessageHandler.HandleMessage(dataMsg, mGameSession, this);
+
+                                state.data = newMsg;
+                                state.dataCount = newMsgLength;
+
+                                msgEnd = MessageHelper.FindEOM(state.data);
+                            }
                         }
                         else
                         {
@@ -132,12 +147,56 @@ namespace GemCarryServer
         {
             IFormatter formatter = new BinaryFormatter();
             Stream stream = new MemoryStream();
-            StateObject state = new StateObject();
+            byte[] compressed;
 
             formatter.Serialize(stream, outMsg);
 
-            byte[] buffer = ((MemoryStream)stream).ToArray();
-            mClientSocket.Send(buffer, buffer.Length, SocketFlags.None);
+            using (MemoryStream resultStream = new MemoryStream())
+            {
+                using (DeflateStream compressionStream = new DeflateStream(resultStream, CompressionMode.Compress))
+                {
+                    stream.Seek(0, SeekOrigin.Begin);
+                    stream.CopyTo(compressionStream);
+                    compressionStream.Close();
+                    compressed = resultStream.ToArray();
+                }
+            }
+
+            byte[] msg;
+            MessageHelper.AppendEOM(compressed, out msg);
+
+            mClientSocket.Send(msg, msg.Length, SocketFlags.None);
+        }
+
+        public void JoinGameSession(/*type requested, matchmaking criteria, etc*/)
+        {
+            // Leave any pre-existing game session
+            if(null != mGameSession)
+            {
+                QuitGameSession();
+            }
+
+            // Find new game session
+            mGameSession = mContext.FindGameSession();
+
+            //GCAssert(null != mGameSession);
+
+            // Tie the connection between session and player
+            mGameSession.AddPlayer(this);
+
+            ChatMessage msg = new ChatMessage();
+            msg.mSender = "Server";
+            msg.mMessage = "You have joined the Game Session.";
+
+            DispatchMessage(msg);
+        }
+
+        public void QuitGameSession()
+        {
+            mGameSession.RemovePlayer(this);
+            mGameSession = null;
+
+            // Tell client socket that they have quit the game? maybe
         }
     }
 

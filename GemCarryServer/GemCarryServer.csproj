@@ -44,7 +44,8 @@
       <HintPath>..\packages\AWSSDK.SimpleEmail.3.1.1.2\lib\net45\AWSSDK.SimpleEmail.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="GCMessaging">
+    <Reference Include="GCMessaging, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\GCMessaging\GCMessaging\bin\Release\GCMessaging.dll</HintPath>
     </Reference>
     <Reference Include="MimeKitLite, Version=1.2.0.0, Culture=neutral, PublicKeyToken=bede1c8a46c66814, processorArchitecture=MSIL">
