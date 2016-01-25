@@ -1,6 +1,5 @@
 ﻿using System;
 using GemCarryServer.Database;
-using Amazon.DynamoDBv2.Model;
 using GemCarryServer.User;
 
 
