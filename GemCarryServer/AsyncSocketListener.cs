@@ -43,7 +43,7 @@ namespace GemCarryServer
             byte[] bytes = new Byte[1024];
 
             // Establish the local endpoint for the socket
-            IPAddress ipAddress = IPAddress.Parse("127.0.0.1");
+            IPAddress ipAddress = IPAddress.Parse("0.0.0.0");
             IPEndPoint localEndPoint = new IPEndPoint(ipAddress, 1025);
 
             // Create TCP/IP Socket

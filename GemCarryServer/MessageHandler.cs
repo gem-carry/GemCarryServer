@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Runtime.Serialization;
 using System.IO;
 using System.IO.Compression;
@@ -57,7 +53,22 @@ namespace GemCarryServer
 
                         break;
                     }
-        
+                case MessageType.CHAT:
+                    {
+                        ChatMessage cMsg = (ChatMessage) msg;
+                        ChatMessage omsg = new ChatMessage();
+                        omsg.mSender = "Server";
+                        omsg.mMessage = String.Format("Got your message {0}", cMsg.mSender);                        
+                        client.DispatchMessage(omsg);
+                        Console.WriteLine(String.Format("User: {0} - {1}", cMsg.mSender, cMsg.mMessage));
+                        break;
+                    }
+                case MessageType.JOINSESSION:
+                    {                        
+                        
+                        break;
+                    }
+
                 case MessageType.HEARTBEAT:
                 default:
                     {
@@ -66,5 +77,7 @@ namespace GemCarryServer
                     }
             }
         }
+
+
     }
 }

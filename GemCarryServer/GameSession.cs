@@ -1,8 +1,6 @@
-﻿using System;
+﻿
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace GemCarryServer
 {
@@ -18,6 +16,7 @@ namespace GemCarryServer
 
         public GameSession()
         {
+            mPlayers = new List<GamePlayer>();
             mPlayerCount = 0;
             mLookingForPlayers = true;
             mLocation = -1;

@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Threading;
 using System.Net.Sockets;
 using System.Runtime.Serialization;
@@ -34,7 +30,7 @@ namespace GemCarryServer
             mContext = context;
             mClientSocket = inSocket;
             mSocketId = socketId;
-
+            JoinGameSession();
             Thread clientThread = new Thread(ListenLoop);
             clientThread.Start();
         }
