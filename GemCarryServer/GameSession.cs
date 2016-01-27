@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-
+using GCMessaging;
 
 namespace GemCarryServer
 {
@@ -49,9 +49,20 @@ namespace GemCarryServer
             mPlayerCount--;
         }
 
-        public List<GamePlayer> ReturnPlayers()
+        public void SendToPlayers(MessageBase msg)
         {
-            return mPlayers;
+            foreach(GamePlayer p in mPlayers)
+            {
+                p.DispatchMessage(msg);
+            }
+        }
+
+        public void SendToPlayers(Byte[] msg)
+        {
+            foreach(GamePlayer p in mPlayers)
+            {
+                p.DispatchMessageBytes(msg);
+            }
         }
     }
 }

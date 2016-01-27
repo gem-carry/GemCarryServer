@@ -30,10 +30,15 @@ namespace GemCarryServer
             mContext = context;
             mClientSocket = inSocket;
             mSocketId = socketId;
+
+            // Send client a response to let them know they are connected.
+            MessageBase connectedMsg = new MessageBase();
+            DispatchMessage(connectedMsg);
+
             JoinGameSession();
+
             Thread clientThread = new Thread(ListenLoop);
             clientThread.Start();
-            
         }
 
         private void ListenLoop()
@@ -53,6 +58,11 @@ namespace GemCarryServer
                 }
 
                 Thread.Sleep(CLIENT_THREAD_TIMEOUT);
+            }
+
+            if (null != mGameSession)
+            {
+                QuitGameSession();
             }
         }
 
@@ -161,6 +171,14 @@ namespace GemCarryServer
 
             byte[] msg;
             MessageHelper.AppendEOM(compressed, out msg);
+
+            mClientSocket.Send(msg, msg.Length, SocketFlags.None);
+        }
+
+        public void DispatchMessageBytes(Byte[] outMsg)
+        {
+            byte[] msg;
+            MessageHelper.AppendEOM(outMsg, out msg);
 
             mClientSocket.Send(msg, msg.Length, SocketFlags.None);
         }

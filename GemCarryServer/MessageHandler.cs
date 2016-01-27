@@ -55,14 +55,7 @@ namespace GemCarryServer
                     }
                 case MessageType.CHAT:
                     {
-                        ChatMessage cMsg = (ChatMessage) msg;
-                        ChatMessage oMsg = new ChatMessage();
-                        foreach (GamePlayer p in session.ReturnPlayers())
-                        {
-                            oMsg.mSender = cMsg.mSender;
-                            oMsg.mMessage = cMsg.mMessage;
-                            p.DispatchMessage(oMsg);                            
-                        }                     
+                        session.SendToPlayers(msg);
                         break;
                     }
 
