@@ -55,11 +55,9 @@ namespace GemCarryServer
                     }
                 case MessageType.CHAT:
                     {
-                        session.SendToPlayers(msg);
+                        session.SendToPlayers(msgData);
                         break;
                     }
-
-
                 case MessageType.HEARTBEAT:
                 default:
                     {
