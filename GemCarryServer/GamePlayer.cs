@@ -33,6 +33,7 @@ namespace GemCarryServer
             JoinGameSession();
             Thread clientThread = new Thread(ListenLoop);
             clientThread.Start();
+            
         }
 
         private void ListenLoop()

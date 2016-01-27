@@ -1,4 +1,4 @@
-﻿
+﻿using System;
 using System.Collections.Generic;
 
 
@@ -9,6 +9,7 @@ namespace GemCarryServer
         private int mPlayerCount;
         private bool mLookingForPlayers;
         private int mLocation; //!< For determining what region this game session is in
+        private Guid mGameSessionId;
 
         private List<GamePlayer> mPlayers;
 
@@ -17,9 +18,11 @@ namespace GemCarryServer
         public GameSession()
         {
             mPlayers = new List<GamePlayer>();
+            mGameSessionId = Guid.NewGuid();
+            Console.WriteLine(mGameSessionId.ToString());         
             mPlayerCount = 0;
             mLookingForPlayers = true;
-            mLocation = -1;
+            mLocation = -1;            
         }
 
         public bool IsSessionOpen(/*type?, matchmaking critera?*/)
@@ -37,13 +40,18 @@ namespace GemCarryServer
         public void AddPlayer(GamePlayer p)
         {
             mPlayers.Add(p);
-            mPlayerCount++;
+            mPlayerCount++;            
         }
 
         public void RemovePlayer(GamePlayer p)
         {
             mPlayers.Remove(p);
             mPlayerCount--;
+        }
+
+        public List<GamePlayer> ReturnPlayers()
+        {
+            return mPlayers;
         }
     }
 }

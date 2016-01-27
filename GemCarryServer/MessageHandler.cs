@@ -56,18 +56,16 @@ namespace GemCarryServer
                 case MessageType.CHAT:
                     {
                         ChatMessage cMsg = (ChatMessage) msg;
-                        ChatMessage omsg = new ChatMessage();
-                        omsg.mSender = "Server";
-                        omsg.mMessage = String.Format("Got your message {0}", cMsg.mSender);                        
-                        client.DispatchMessage(omsg);
-                        Console.WriteLine(String.Format("User: {0} - {1}", cMsg.mSender, cMsg.mMessage));
+                        ChatMessage oMsg = new ChatMessage();
+                        foreach (GamePlayer p in session.ReturnPlayers())
+                        {
+                            oMsg.mSender = cMsg.mSender;
+                            oMsg.mMessage = cMsg.mMessage;
+                            p.DispatchMessage(oMsg);                            
+                        }                     
                         break;
                     }
-                case MessageType.JOINSESSION:
-                    {                        
-                        
-                        break;
-                    }
+
 
                 case MessageType.HEARTBEAT:
                 default:
