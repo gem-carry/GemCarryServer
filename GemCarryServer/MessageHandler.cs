@@ -32,22 +32,24 @@ namespace GemCarryServer
                 case MessageType.LOGIN:
                     {
                         LoginMessage loginMsg = (LoginMessage) msg;
-
+                        
+                                      
                         int status = LoginManager.GetInstance().ValidateCredentials(new User.GCUser.LoginInfo(loginMsg.mUsername), loginMsg.mPassword);
                         ChatMessage omsg = new ChatMessage();
                         omsg.mSender = "Server";
-
+                        
                         if (0 == status)
                         {
                             // Success!
-                            omsg.mMessage = "You have logged in.";                            
+                            omsg.mMessage = "You have logged in.";  
+                                                      
                         }
                         else
                         {
                             omsg.mMessage = "Failed to log authenticate. Please check your username or password and try again.";
                         }
-
-                        client.DispatchMessage(omsg);
+                        client.DispatchMessage(omsg);                        
+                        
 
                         break;
                     }
@@ -58,11 +60,13 @@ namespace GemCarryServer
                     }
                 case MessageType.CREATEUSER:
                     {
+                        ServerResponseCodeMessage responseCodeMsg = new ServerResponseCodeMessage();
                         CreateUserMessage createUserMessage = (CreateUserMessage)msg;
                         ChatMessage omsg = new ChatMessage();
-                        omsg.mSender = "Server";
-                                                
+                        omsg.mSender = "Server";                       
+
                         int status = LoginManager.GetInstance().CreateUser(new User.GCUser.LoginInfo(createUserMessage.mUsername), createUserMessage.mPassword);
+                        responseCodeMsg.mResponseCode = status;
 
                         if ((int)DBEnum.DBResponseCodes.SUCCESS == status)
                         {
@@ -75,8 +79,8 @@ namespace GemCarryServer
                         else
                         {
                             omsg.mMessage = String.Format("User name: {0} has been successfully created.", createUserMessage.mUsername);
-                        }                        
-
+                        }
+                        client.DispatchMessage(responseCodeMsg);
                         client.DispatchMessage(omsg);
 
                         break;
