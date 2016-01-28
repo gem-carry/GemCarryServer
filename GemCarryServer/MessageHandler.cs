@@ -33,23 +33,21 @@ namespace GemCarryServer
                     {
                         LoginMessage loginMsg = (LoginMessage) msg;
 
-                        int status = 0;// LoginManager.GetInstance().ValidateCredentials(new User.GCUser.LoginInfo(loginMsg.mUsername), loginMsg.mPassword);
+                        int status = LoginManager.GetInstance().ValidateCredentials(new User.GCUser.LoginInfo(loginMsg.mUsername), loginMsg.mPassword);
+                        ChatMessage omsg = new ChatMessage();
+                        omsg.mSender = "Server";
 
-                        if(0 == status)
+                        if (0 == status)
                         {
                             // Success!
-                            ChatMessage omsg = new ChatMessage();
-                            omsg.mSender = "Server";
-                            omsg.mMessage = "You have logged in.";
-
-                            client.DispatchMessage(omsg);
-
-                            Console.WriteLine("User {0} logged in", loginMsg.mUsername);
+                            omsg.mMessage = "You have logged in.";                            
                         }
                         else
                         {
-                            Console.WriteLine("Failed with reason " + status);
+                            omsg.mMessage = "Failed to log authenticate. Please check your username or password and try again.";
                         }
+
+                        client.DispatchMessage(omsg);
 
                         break;
                     }
@@ -58,6 +56,31 @@ namespace GemCarryServer
                         session.SendToPlayers(msgData);
                         break;
                     }
+                case MessageType.CREATEUSER:
+                    {
+                        CreateUserMessage createUserMessage = (CreateUserMessage)msg;
+                        ChatMessage omsg = new ChatMessage();
+                        omsg.mSender = "Server";
+                                                
+                        int status = LoginManager.GetInstance().CreateUser(new User.GCUser.LoginInfo(createUserMessage.mUsername), createUserMessage.mPassword);
+
+                        if ((int)DBEnum.DBResponseCodes.SUCCESS == status)
+                        {
+                            omsg.mMessage = String.Format("User name: {0} has been successfully created.", createUserMessage.mUsername);
+                        }   
+                        else if ((int)DBEnum.DBResponseCodes.USER_EXIST == status)
+                        {
+                            omsg.mMessage = "Error: Username already exists, please pick another name.";
+                        }
+                        else
+                        {
+                            omsg.mMessage = String.Format("User name: {0} has been successfully created.", createUserMessage.mUsername);
+                        }                        
+
+                        client.DispatchMessage(omsg);
+
+                        break;
+                    }                
                 case MessageType.HEARTBEAT:
                 default:
                     {
