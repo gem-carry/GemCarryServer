@@ -63,9 +63,9 @@ namespace GemCarryServer
                         ServerResponseCodeMessage responseCodeMsg = new ServerResponseCodeMessage();
                         CreateUserMessage createUserMessage = (CreateUserMessage)msg;
                         ChatMessage omsg = new ChatMessage();
-                        omsg.mSender = "Server";                       
+                        omsg.mSender = "Server";
 
-                        int status = LoginManager.GetInstance().CreateUser(new User.GCUser.LoginInfo(createUserMessage.mUsername), createUserMessage.mPassword);
+                        int status = (int)DBEnum.DBResponseCodes.SUCCESS;//LoginManager.GetInstance().CreateUser(new User.GCUser.LoginInfo(createUserMessage.mUsername), createUserMessage.mPassword);
                         responseCodeMsg.mResponseCode = status;
 
                         if ((int)DBEnum.DBResponseCodes.SUCCESS == status)
@@ -88,7 +88,6 @@ namespace GemCarryServer
                 case MessageType.HEARTBEAT:
                 default:
                     {
-                        Console.WriteLine("Received Heartbeat from client");
                         return;
                     }
             }

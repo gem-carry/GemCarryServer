@@ -5,6 +5,7 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 using System.IO.Compression;
+using System.Text;
 using GCMessaging;
 
 namespace GemCarryServer
@@ -43,24 +44,20 @@ namespace GemCarryServer
 
         private void ListenLoop()
         {
-            StateObject state = new StateObject();
-            state.workSocket = mClientSocket;
-
-            while (mClientSocket.Connected)
+            if (true == mClientSocket.Connected)
             {
                 try
                 {
-                    mClientSocket.BeginReceive(state.buffer, 0, StateObject.BufferSize, SocketFlags.None, new AsyncCallback(ReadCallback), state);
+                    SocketPacket packet = new SocketPacket(mClientSocket);
+
+                    mClientSocket.BeginReceive(packet.buffer, 0, SocketPacket.BufferSize, SocketFlags.None, new AsyncCallback(ReadCallback), packet);
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine(" >> " + ex.ToString());
                 }
-
-                Thread.Sleep(CLIENT_THREAD_TIMEOUT);
             }
-
-            if (null != mGameSession)
+            else if (null != mGameSession)
             {
                 QuitGameSession();
             }
@@ -70,10 +67,10 @@ namespace GemCarryServer
         {
             String content = String.Empty;
 
-            // Retrieve the state object and the handler socket
-            // from the asynchronous state object.
-            StateObject state = (StateObject)ar.AsyncState;
-            Socket handler = state.workSocket;
+            // Retrieve the packet object and the handler socket
+            // from the asynchronous packet object.
+            SocketPacket packet = (SocketPacket)ar.AsyncState;
+            Socket handler = packet.workSocket;
 
             // Read data from the client socket. 
             try
@@ -89,31 +86,16 @@ namespace GemCarryServer
 
                     if (bytesRead > 0)
                     {
-                        // There  might be more data, so store the data received so far.
-                        byte[] oldData = state.data;
-                        if(null != oldData)
-                        {
-                            int newLength = bytesRead + state.dataCount;
-                            state.data = new byte[newLength];
-                            Array.Copy(oldData, 0, state.data, 0, state.dataCount);
-                            Array.Copy(state.buffer, 0, state.data, state.dataCount, bytesRead);
-                            state.dataCount = newLength;
-                        }
-                        else
-                        {
-                            state.data = new byte[bytesRead];
-                            Array.Copy(state.buffer, 0, state.data, 0, bytesRead);
-                            state.dataCount = bytesRead;
-                        }
+                        packet.dataCount = bytesRead;
 
                         // All the data has been read from the 
                         // client. Display it on the console.
                         Console.WriteLine("Read {0} bytes from socket {1}.",
-                            state.data.Length, mSocketId);
+                            packet.dataCount, mSocketId);
 
                         // Check for end-of-file tag. If it is not there, read 
                         // more data.
-                        int msgEnd = MessageHelper.FindEOM(state.data);
+                        int msgEnd = MessageHelper.FindEOM(packet.buffer);
                         if (msgEnd > -1)
                         {
                             // At least one full message read
@@ -124,22 +106,22 @@ namespace GemCarryServer
                                 int newMsgLength;
 
                                 // Sorts out the message data into at least one full message, saves any spare bytes for next message
-                                MessageHelper.ClearMessageFromStream(msgEnd, state.data, out dataMsg, out newMsg, out newMsgLength);
+                                MessageHelper.ClearMessageFromStream(msgEnd, packet.buffer, out dataMsg, out newMsg, out newMsgLength);
 
                                 // Do something with client message
                                 MessageHandler.HandleMessage(dataMsg, mGameSession, this);
 
-                                state.data = newMsg;
-                                state.dataCount = newMsgLength;
+                                packet.buffer = newMsg;
+                                packet.dataCount = newMsgLength;
 
-                                msgEnd = MessageHelper.FindEOM(state.data);
+                                msgEnd = MessageHelper.FindEOM(packet.buffer);
                             }
                         }
                         else
                         {
                             // Not all data received. Get more.
-                            handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0,
-                            new AsyncCallback(ReadCallback), state);
+                            handler.BeginReceive(packet.buffer, 0, SocketPacket.BufferSize, 0,
+                            new AsyncCallback(ReadCallback), packet);
                         }
                     }
                 }
@@ -148,6 +130,8 @@ namespace GemCarryServer
             {
                 Console.WriteLine(e.ToString());
             }
+
+            ListenLoop();
         }
 
         public void DispatchMessage(MessageBase outMsg)
