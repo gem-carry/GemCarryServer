@@ -21,7 +21,5 @@ namespace GemCarryServer
         public const int BufferSize = 1024;
         // Receive buffer.
         public byte[] buffer = new byte[BufferSize];
-        // Number of bytes stored
-        public int dataCount = 0;
     }
 }

@@ -86,12 +86,10 @@ namespace GemCarryServer
 
                     if (bytesRead > 0)
                     {
-                        packet.dataCount = bytesRead;
-
                         // All the data has been read from the 
                         // client. Display it on the console.
                         Console.WriteLine("Read {0} bytes from socket {1}.",
-                            packet.dataCount, mSocketId);
+                            bytesRead, mSocketId);
 
                         // Check for end-of-file tag. If it is not there, read 
                         // more data.
@@ -103,16 +101,14 @@ namespace GemCarryServer
                             {
                                 byte[] dataMsg;
                                 byte[] newMsg;
-                                int newMsgLength;
 
                                 // Sorts out the message data into at least one full message, saves any spare bytes for next message
-                                MessageHelper.ClearMessageFromStream(msgEnd, packet.buffer, out dataMsg, out newMsg, out newMsgLength);
+                                MessageHelper.ClearMessageFromStream(msgEnd, packet.buffer, out dataMsg, out newMsg);
 
                                 // Do something with client message
                                 MessageHandler.HandleMessage(dataMsg, mGameSession, this);
 
                                 packet.buffer = newMsg;
-                                packet.dataCount = newMsgLength;
 
                                 msgEnd = MessageHelper.FindEOM(packet.buffer);
                             }
