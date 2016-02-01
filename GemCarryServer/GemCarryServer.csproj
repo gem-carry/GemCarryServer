@@ -62,7 +62,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AsyncSocketListener.cs" />
+    <Compile Include="BufferManager.cs" />
+    <Compile Include="SocketAsyncEventArgsPool.cs" />
+    <Compile Include="AsyncServer.cs" />
     <Compile Include="Database\DBManager.cs" />
     <Compile Include="Database\LoginManager.cs" />
     <Compile Include="GameLogger.cs" />

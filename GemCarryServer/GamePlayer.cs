@@ -13,121 +13,83 @@ namespace GemCarryServer
     public class GamePlayer
     {
         private ServerHost  mContext;
-        private Socket      mClientSocket;
-        private int         mSocketId;
-        private bool        mConnected;
         private GameSession mGameSession;
 
+        // Read socket info
+        private int         mSocketId;
+        private int         mBufferSize;
+        private byte[]      mLocalBuffer;
+        private int         mCurrentOffset;
+        private int         mMaxBufferSize;
+
+        public Socket Socket
+        {
+            get;
+            set;
+        }
+
         private const int CLIENT_THREAD_TIMEOUT = 40;
-        private const int BUFFER_SIZE = 8192;
 
-        public GamePlayer()
+        public GamePlayer(ServerHost context, Socket socket, int bufferSize)
         {
-            mConnected = false;
-        }
+            this.mContext = context;
+            this.Socket = socket;
+            mBufferSize = bufferSize;
+            mMaxBufferSize = bufferSize * 2;
+            mLocalBuffer = new byte[mMaxBufferSize]; //<! For now, allow max buffer storage be 2x size of max buffer
 
-        public void StartConnection(ServerHost context, Socket inSocket, int socketId)
-        {
-            mContext = context;
-            mClientSocket = inSocket;
-            mSocketId = socketId;
+            // Temporary
+            MessageBase msg = new MessageBase();
+            DispatchMessage(msg);
 
-            // Send client a response to let them know they are connected.
-            MessageBase connectedMsg = new MessageBase();
-            DispatchMessage(connectedMsg);
-
+            // Temporary
             JoinGameSession();
-
-            Thread clientThread = new Thread(ListenLoop);
-            clientThread.Start();
         }
 
-        private void ListenLoop()
+        public bool ReadSocketData(SocketAsyncEventArgs e)
         {
-            if (true == mClientSocket.Connected)
+            // Read all the bytes, create messages in FIFO stack to be processed
+            if (mCurrentOffset + e.BytesTransferred < mMaxBufferSize)
             {
-                try
-                {
-                    SocketPacket packet = new SocketPacket(mClientSocket);
-
-                    mClientSocket.BeginReceive(packet.buffer, 0, SocketPacket.BufferSize, SocketFlags.None, new AsyncCallback(ReadCallback), packet);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(" >> " + ex.ToString());
-                }
+                Array.Copy(e.Buffer, e.Offset, mLocalBuffer, mCurrentOffset, e.BytesTransferred);
+                mCurrentOffset += e.BytesTransferred;
+                return true;
             }
-            else if (null != mGameSession)
+            else
             {
-                QuitGameSession();
+                // Error!
+                return false;
             }
         }
 
-        public void ReadCallback(IAsyncResult ar)
+        public void ProcessData(SocketAsyncEventArgs e)
         {
-            String content = String.Empty;
-
-            // Retrieve the packet object and the handler socket
-            // from the asynchronous packet object.
-            SocketPacket packet = (SocketPacket)ar.AsyncState;
-            Socket handler = packet.workSocket;
-
-            // Read data from the client socket. 
-            try
+            int msgEnd = MessageHelper.FindEOM(mLocalBuffer);
+            if (msgEnd > -1)
             {
-                if (true == handler.Connected)
+                // At least one full message read
+                while (msgEnd > -1)
                 {
-                    SocketError errorCode;
-                    int bytesRead = handler.EndReceive(ar, out errorCode);
-                    if(SocketError.Success != errorCode)
+                    byte[] message;
+
+                    // Sorts out the message data into at least one full message, saves any spare bytes for next message
+                    mCurrentOffset = MessageHelper.PullMessageFromBuffer(msgEnd, mLocalBuffer, mCurrentOffset, out message);
+
+                    // Do something with client message
+                    MessageHandler.HandleMessage(message, mGameSession, this);
+
+                    // If we still have data in the buffer
+                    if (mCurrentOffset > 0)
                     {
-                        bytesRead = 0;
+                        // More data in buffer, look for another message in Buffer
+                        msgEnd = MessageHelper.FindEOM(mLocalBuffer);
                     }
-
-                    if (bytesRead > 0)
+                    else
                     {
-                        // All the data has been read from the 
-                        // client. Display it on the console.
-                        Console.WriteLine("Read {0} bytes from socket {1}.",
-                            bytesRead, mSocketId);
-
-                        // Check for end-of-file tag. If it is not there, read 
-                        // more data.
-                        int msgEnd = MessageHelper.FindEOM(packet.buffer);
-                        if (msgEnd > -1)
-                        {
-                            // At least one full message read
-                            while (msgEnd > -1)
-                            {
-                                byte[] dataMsg;
-                                byte[] newMsg;
-
-                                // Sorts out the message data into at least one full message, saves any spare bytes for next message
-                                MessageHelper.ClearMessageFromStream(msgEnd, packet.buffer, out dataMsg, out newMsg);
-
-                                // Do something with client message
-                                MessageHandler.HandleMessage(dataMsg, mGameSession, this);
-
-                                packet.buffer = newMsg;
-
-                                msgEnd = MessageHelper.FindEOM(packet.buffer);
-                            }
-                        }
-                        else
-                        {
-                            // Not all data received. Get more.
-                            handler.BeginReceive(packet.buffer, bytesRead, SocketPacket.BufferSize, 0,
-                            new AsyncCallback(ReadCallback), packet);
-                        }
+                        msgEnd = -1;
                     }
                 }
             }
-            catch(Exception e)
-            {
-                Console.WriteLine(e.ToString());
-            }
-
-            ListenLoop();
         }
 
         public void DispatchMessage(MessageBase outMsg)
@@ -152,7 +114,7 @@ namespace GemCarryServer
             byte[] msg;
             MessageHelper.AppendEOM(compressed, out msg);
 
-            mClientSocket.Send(msg, msg.Length, SocketFlags.None);
+            Socket.Send(msg, msg.Length, SocketFlags.None);
         }
 
         public void DispatchMessageBytes(Byte[] outMsg)
@@ -160,7 +122,7 @@ namespace GemCarryServer
             byte[] msg;
             MessageHelper.AppendEOM(outMsg, out msg);
 
-            mClientSocket.Send(msg, msg.Length, SocketFlags.None);
+            Socket.Send(msg, msg.Length, SocketFlags.None);
         }
 
         public void JoinGameSession(/*type requested, matchmaking criteria, etc*/)

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Net;
+using System.Net.Sockets;
 
 namespace GemCarryServer
 {
@@ -11,11 +13,20 @@ namespace GemCarryServer
         private List<GameSession> mGameSessions;
         private int mCurrentSocketId;
 
+        private AsyncServer mServer;
+
         public void StartServer()
         {
             mCurrentSocketId = 0;
             mGameSessions = new List<GameSession>();
-            AsyncSocketListener.StartListening(this);
+
+            mServer = new AsyncServer(this, 1000, 1024);
+
+            // Establish the local endpoint for the socket
+            IPAddress ipAddress = IPAddress.Parse("0.0.0.0");
+            IPEndPoint localEndPoint = new IPEndPoint(ipAddress, 1025);
+
+            mServer.Start(localEndPoint);
         }
 
         public int GetNextClientId()

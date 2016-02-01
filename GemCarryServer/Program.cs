@@ -12,11 +12,16 @@ namespace GemCarryServer
 
         static void Main(string[] args)
         {
-            
-               mServerHost = new ServerHost();
-               mServerHost.StartServer();
+            Console.WriteLine("Welcome to GemCarryServer. Type 'quit' to shut down.");
 
-          
+            mServerHost = new ServerHost();
+            mServerHost.StartServer();
+
+            string userinput = "";
+            while (userinput != "quit")
+            {
+                userinput = Console.ReadLine();
+            }
         }
     }
 }
