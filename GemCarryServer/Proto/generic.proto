@@ -1,0 +1,48 @@
+syntax = "proto2";
+package GCMessaging.Messages;
+
+message ConnectResponse
+{
+    required bool success = 1;
+}
+
+message LoginRequest
+{
+    required string username = 1;
+    required string password = 2;
+}
+
+message LoginResponse
+{
+    required bool success = 1;
+}
+
+message CreateUserRequest
+{
+    required string username = 1;
+    required string password = 2;
+}
+
+message CreateUserResponse
+{
+    required bool success = 1;
+}
+
+message MatchmakingRequest
+{
+    optional int32 gameType = 1;
+}
+
+message MatchmakingResponse
+{
+    enum MatchmakingStatus
+    {
+        SEARCHING = 0;
+        JOINING_GAME = 1;
+        WAITING_FOR_PLAYERS = 2;
+        GAME_SESSION_ACTIVE = 3;
+        GAME_END = 4;
+    }
+    
+    required MatchmakingStatus status = 1;
+}

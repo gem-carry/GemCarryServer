@@ -7,6 +7,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Text;
 using GCMessaging;
+using ProtoBuf;
 
 namespace GemCarryServer
 {
@@ -38,8 +39,7 @@ namespace GemCarryServer
             mMaxBufferSize = bufferSize * 2;
             mLocalBuffer = new byte[mMaxBufferSize]; //<! For now, allow max buffer storage be 2x size of max buffer
 
-            // Temporary
-            MessageBase msg = new MessageBase();
+            ConnectResponse msg = new ConnectResponse{ success = true };
             DispatchMessage(msg);
 
             // Temporary
@@ -92,29 +92,17 @@ namespace GemCarryServer
             }
         }
 
-        public void DispatchMessage(MessageBase outMsg)
+        public void DispatchMessage(GCMessaging.BaseMessage outMsg)
         {
-            IFormatter formatter = new BinaryFormatter();
-            Stream stream = new MemoryStream();
-            byte[] compressed;
-
-            formatter.Serialize(stream, outMsg);
-
-            using (MemoryStream resultStream = new MemoryStream())
+            using (MemoryStream stream = new MemoryStream())
             {
-                using (DeflateStream compressionStream = new DeflateStream(resultStream, CompressionMode.Compress))
-                {
-                    stream.Seek(0, SeekOrigin.Begin);
-                    stream.CopyTo(compressionStream);
-                    compressionStream.Close();
-                    compressed = resultStream.ToArray();
-                }
+                Serializer.Serialize(stream, outMsg);
+
+                byte[] msg;
+                MessageHelper.AppendEOM(stream.ToArray(), out msg);
+
+                Socket.Send(msg, msg.Length, SocketFlags.None);
             }
-
-            byte[] msg;
-            MessageHelper.AppendEOM(compressed, out msg);
-
-            Socket.Send(msg, msg.Length, SocketFlags.None);
         }
 
         public void DispatchMessageBytes(Byte[] outMsg)
@@ -141,10 +129,11 @@ namespace GemCarryServer
             // Tie the connection between session and player
             mGameSession.AddPlayer(this);
 
-            ChatMessage msg = new ChatMessage();
-            msg.mSender = "Server";
-            msg.mMessage = "You have joined the Game Session.";
-
+            ChatMessage msg = new ChatMessage()
+            {
+                sender = "Server",
+                message = "You have joined the Game Session."
+            };
             DispatchMessage(msg);
         }
 

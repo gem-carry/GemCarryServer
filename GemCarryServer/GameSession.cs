@@ -49,7 +49,7 @@ namespace GemCarryServer
             mPlayerCount--;
         }
 
-        public void SendToPlayers(MessageBase msg)
+        public void SendToPlayers(BaseMessage msg)
         {
             foreach(GamePlayer p in mPlayers)
             {
